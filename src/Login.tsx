@@ -4,43 +4,42 @@ import "./App.css";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("citizen");
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    role: "citizen",
+  });
   const [error, setError] = useState("");
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       const endpoint =
-        role === "hero" ? "/api/superheroes/login" : "/api/citizens/login";
+        formData.role === "hero"
+          ? "/api/superheroes/login"
+          : "/api/citizens/login";
       const response = await fetch(`http://localhost:5050${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        const user = role === "hero" ? data.superhero : data.citizen;
+        const user = formData.role === "hero" ? data.superhero : data.citizen;
         localStorage.setItem("userId", user.id);
-        localStorage.setItem("userRole", role);
+        localStorage.setItem("userRole", formData.role);
         localStorage.setItem("username", user.username);
-        navigate(role === "hero" ? "/hero" : "/citizen");
+        navigate(formData.role === "hero" ? "/hero" : "/citizen");
       } else {
         setError(data.mensaje || "Credenciales inválidas");
       }
     } catch (error) {
-      console.error("Login error:", error);
       setError("Error en el servidor");
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleLogin();
   };
 
   return (
@@ -58,48 +57,54 @@ const Login: React.FC = () => {
         <h1>Iniciar Sesión</h1>
         {error && <p className="error-message">{error}</p>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleLogin}>
           <input
             type="text"
             placeholder="Usuario"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={formData.username}
+            onChange={(e) =>
+              setFormData({ ...formData, username: e.target.value })
+            }
             className="login-input"
             required
           />
           <input
             type="password"
             placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
             className="login-input"
             required
           />
 
           <div className="role-selection">
-            <div>
-              <div className="role-option">
-                <input
-                  type="radio"
-                  id="citizenCheck"
-                  name="role"
-                  value="citizen"
-                  checked={role === "citizen"}
-                  onChange={() => setRole("citizen")}
-                />
-                <label htmlFor="citizenCheck">Soy un ciudadano</label>
-              </div>
-              <div className="role-option">
-                <input
-                  type="radio"
-                  id="heroCheck"
-                  name="role"
-                  value="hero"
-                  checked={role === "hero"}
-                  onChange={() => setRole("hero")}
-                />
-                <label htmlFor="heroCheck">Soy un superhéroe</label>
-              </div>
+            <div className="role-option">
+              <input
+                type="radio"
+                id="citizenCheck"
+                name="role"
+                value="citizen"
+                checked={formData.role === "citizen"}
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+              />
+              <label htmlFor="citizenCheck">Soy un ciudadano</label>
+            </div>
+            <div className="role-option">
+              <input
+                type="radio"
+                id="heroCheck"
+                name="role"
+                value="hero"
+                checked={formData.role === "hero"}
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+              />
+              <label htmlFor="heroCheck">Soy un superhéroe</label>
             </div>
           </div>
 

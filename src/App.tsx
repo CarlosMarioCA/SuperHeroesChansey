@@ -12,6 +12,8 @@ import LandingPage from "./LandingPage";
 import CitizenView from "./CitizenView";
 import HeroView from "./HeroView";
 import Login from "./Login";
+import RegisterView from "./RegisterView";
+import CaseCreateView from "./CaseCreateView";
 
 const RoleSelection: React.FC = () => {
   const navigate = useNavigate();
@@ -49,6 +51,8 @@ const App: React.FC = () => {
         <Route path="/hero" element={<HeroView />} />
         <Route path="/citizen" element={<CitizenView />} />
         <Route path="/admin" element={<AdminView />} />
+        <Route path="/register" element={<RegisterView />} />
+        <Route path="/create-case" element={<CaseCreateView />} />
       </Routes>
     </Router>
   );
