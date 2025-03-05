@@ -435,3 +435,24 @@ select {
 .role-option label {
   white-space: nowrap; /* Evita que el texto salte a la siguiente línea */
 }
+
+.button-group {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.register-button {
+  padding: 10px 20px;
+  background-color: #171ab5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.register-button:hover {
+  background-color: #171ab5;
+}

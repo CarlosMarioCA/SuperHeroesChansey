@@ -5,7 +5,7 @@ export const getAllCitizens = async (req, res) => {
     const citizens = await Citizen.find().select('-password');
     res.status(200).json(citizens);
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al obtener ciudadanos", error: error.message });
+    res.status(500).json({ mensaje: "Error al obtener ciudadanos" });
   }
 };
 
@@ -17,62 +17,36 @@ export const getCitizenById = async (req, res) => {
     }
     res.status(200).json(citizen);
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al obtener ciudadano", error: error.message });
+    res.status(500).json({ mensaje: "Error al obtener ciudadano" });
   }
 };
 
 export const createCitizen = async (req, res) => {
   try {
-    const {
-      name,
-      username,
-      password,
-      email,
-      personalInfo,
-      address
-    } = req.body;
-
-    const newCitizen = new Citizen({
-      name,
-      username,
-      password, // Note: Should implement password hashing
-      email,
-      personalInfo,
-      address,
-      accountStatus: 'Activo'
-    });
-
+    const newCitizen = new Citizen(req.body);
     await newCitizen.save();
-    res.status(201).json({
-      mensaje: "Ciudadano creado exitosamente",
-      citizen: {
-        ...newCitizen.toObject(),
-        password: undefined
-      }
-    });
+    const citizenResponse = newCitizen.toObject();
+    delete citizenResponse.password;
+    res.status(201).json({ mensaje: "Ciudadano creado exitosamente", citizen: citizenResponse });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al crear ciudadano", error: error.message });
+    res.status(500).json({ mensaje: "Error al crear ciudadano" });
   }
 };
 
 export const updateCitizen = async (req, res) => {
   try {
-    const { password, ...updateData } = req.body;
     const updatedCitizen = await Citizen.findByIdAndUpdate(
       req.params.id,
-      updateData,
+      req.body,
       { new: true }
     ).select('-password');
-
+    
     if (!updatedCitizen) {
       return res.status(404).json({ mensaje: "Ciudadano no encontrado" });
     }
-    res.status(200).json({
-      mensaje: "Ciudadano actualizado exitosamente",
-      citizen: updatedCitizen
-    });
+    res.status(200).json({ mensaje: "Ciudadano actualizado exitosamente", citizen: updatedCitizen });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al actualizar ciudadano", error: error.message });
+    res.status(500).json({ mensaje: "Error al actualizar ciudadano" });
   }
 };
 
@@ -84,25 +58,40 @@ export const deleteCitizen = async (req, res) => {
     }
     res.status(200).json({ mensaje: "Ciudadano eliminado exitosamente" });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al eliminar ciudadano", error: error.message });
+    res.status(500).json({ mensaje: "Error al eliminar ciudadano" });
   }
 };
 
-export const addCase = async (req, res) => {
+export const loginCitizen = async (req, res) => {
   try {
-    const citizen = await Citizen.findById(req.params.id);
-    if (!citizen) {
-      return res.status(404).json({ mensaje: "Ciudadano no encontrado" });
+    const { username, password } = req.body;
+    const citizen = await Citizen.findOne({ username });
+
+    if (!citizen || citizen.password !== password) {
+      return res.status(401).json({ mensaje: "Credenciales inválidas" });
     }
 
-    citizen.cases.push(req.body);
-    await citizen.save();
+    const citizenResponse = {
+      id: citizen._id,
+      username: citizen.username,
+      name: citizen.name,
+      role: 'citizen'
+    };
 
-    res.status(200).json({
-      mensaje: "Caso agregado exitosamente",
-      case: citizen.cases[citizen.cases.length - 1]
+    res.status(200).json({ 
+      mensaje: "Login exitoso",
+      citizen: citizenResponse
     });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al agregar caso", error: error.message });
+    res.status(500).json({ mensaje: "Error en el servidor durante login" });
   }
+};
+
+export default {
+  getAllCitizens,
+  getCitizenById,
+  createCitizen,
+  updateCitizen,
+  deleteCitizen,
+  loginCitizen
 };

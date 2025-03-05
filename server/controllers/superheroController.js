@@ -5,7 +5,7 @@ export const getAllSuperheroes = async (req, res) => {
     const superheroes = await Superhero.find().select('-password');
     res.status(200).json(superheroes);
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al obtener superhéroes", error: error.message });
+    res.status(500).json({ mensaje: "Error al obtener superhéroes" });
   }
 };
 
@@ -17,65 +17,36 @@ export const getSuperheroById = async (req, res) => {
     }
     res.status(200).json(superhero);
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al obtener superhéroe", error: error.message });
+    res.status(500).json({ mensaje: "Error al obtener superhéroe" });
   }
 };
 
 export const createSuperhero = async (req, res) => {
   try {
-    const {
-      name,
-      username,
-      password,
-      powers,
-      specialties,
-      contactInfo,
-      location
-    } = req.body;
-
-    const newSuperhero = new Superhero({
-      name,
-      username,
-      password,
-      powers,
-      specialties,
-      contactInfo,
-      location,
-      activeStatus: 'Disponible',
-      rank: 'Novato'
-    });
-
+    const newSuperhero = new Superhero(req.body);
     await newSuperhero.save();
-    res.status(201).json({
-      mensaje: "Superhéroe creado exitosamente",
-      superhero: {
-        ...newSuperhero.toObject(),
-        password: undefined
-      }
-    });
+    const superheroResponse = newSuperhero.toObject();
+    delete superheroResponse.password;
+    res.status(201).json({ mensaje: "Superhéroe creado exitosamente", superhero: superheroResponse });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al crear superhéroe", error: error.message });
+    res.status(500).json({ mensaje: "Error al crear superhéroe" });
   }
 };
 
 export const updateSuperhero = async (req, res) => {
   try {
-    const { password, ...updateData } = req.body;
     const updatedSuperhero = await Superhero.findByIdAndUpdate(
       req.params.id,
-      updateData,
+      req.body,
       { new: true }
     ).select('-password');
-
+    
     if (!updatedSuperhero) {
       return res.status(404).json({ mensaje: "Superhéroe no encontrado" });
     }
-    res.status(200).json({
-      mensaje: "Superhéroe actualizado exitosamente",
-      superhero: updatedSuperhero
-    });
+    res.status(200).json({ mensaje: "Superhéroe actualizado exitosamente", superhero: updatedSuperhero });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al actualizar superhéroe", error: error.message });
+    res.status(500).json({ mensaje: "Error al actualizar superhéroe" });
   }
 };
 
@@ -87,51 +58,40 @@ export const deleteSuperhero = async (req, res) => {
     }
     res.status(200).json({ mensaje: "Superhéroe eliminado exitosamente" });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al eliminar superhéroe", error: error.message });
+    res.status(500).json({ mensaje: "Error al eliminar superhéroe" });
   }
 };
 
-export const assignCase = async (req, res) => {
+export const loginSuperhero = async (req, res) => {
   try {
-    const superhero = await Superhero.findById(req.params.id);
-    if (!superhero) {
-      return res.status(404).json({ mensaje: "Superhéroe no encontrado" });
+    const { username, password } = req.body;
+    const superhero = await Superhero.findOne({ username });
+
+    if (!superhero || superhero.password !== password) {
+      return res.status(401).json({ mensaje: "Credenciales inválidas" });
     }
 
-    superhero.assignedCases.push(req.body);
-    superhero.activeStatus = 'En misión';
-    await superhero.save();
-
-    res.status(200).json({
-      mensaje: "Caso asignado exitosamente",
-      case: superhero.assignedCases[superhero.assignedCases.length - 1]
-    });
-  } catch (error) {
-    res.status(500).json({ mensaje: "Error al asignar caso", error: error.message });
-  }
-};
-
-export const updateStats = async (req, res) => {
-  try {
-    const superhero = await Superhero.findById(req.params.id);
-    if (!superhero) {
-      return res.status(404).json({ mensaje: "Superhéroe no encontrado" });
-    }
-
-    const { successfulMissions, failedMissions, averageRating } = req.body;
-    superhero.stats = {
-      ...superhero.stats,
-      successfulMissions,
-      failedMissions,
-      averageRating
+    const superheroResponse = {
+      id: superhero._id,
+      username: superhero.username,
+      name: superhero.name,
+      role: 'hero'
     };
-    
-    await superhero.save();
-    res.status(200).json({
-      mensaje: "Estadísticas actualizadas exitosamente",
-      stats: superhero.stats
+
+    res.status(200).json({ 
+      mensaje: "Login exitoso",
+      superhero: superheroResponse
     });
   } catch (error) {
-    res.status(500).json({ mensaje: "Error al actualizar estadísticas", error: error.message });
+    res.status(500).json({ mensaje: "Error en el servidor durante login" });
   }
+};
+
+export default {
+  getAllSuperheroes,
+  getSuperheroById,
+  createSuperhero,
+  updateSuperhero,
+  deleteSuperhero,
+  loginSuperhero
 };

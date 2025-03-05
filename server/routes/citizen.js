@@ -5,19 +5,17 @@ import {
   createCitizen,
   updateCitizen,
   deleteCitizen,
-  addCase
+  loginCitizen
 } from "../controllers/citizenController.js";
 
 const router = express.Router();
 
-// Base route: /api/citizens
+// Base routes
 router.get("/", getAllCitizens);
 router.get("/:id", getCitizenById);
 router.post("/", createCitizen);
+router.post("/login", loginCitizen);
 router.patch("/:id", updateCitizen);
 router.delete("/:id", deleteCitizen);
-
-// Case management routes
-router.post("/:id/cases", addCase);
 
 export default router;
