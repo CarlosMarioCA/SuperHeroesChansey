@@ -1,67 +1,108 @@
 import Citizen from "../models/citizen.js";
 
-// Obtener todos los ciudadanos
 export const getAllCitizens = async (req, res) => {
   try {
-    const citizens = await Citizen.find();
+    const citizens = await Citizen.find().select('-password');
     res.status(200).json(citizens);
   } catch (error) {
-    console.error("Error al obtener ciudadanos:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    res.status(500).json({ mensaje: "Error al obtener ciudadanos", error: error.message });
   }
 };
 
-// Obtener un ciudadano por ID
 export const getCitizenById = async (req, res) => {
   try {
-    const citizen = await Citizen.findById(req.params.id);
+    const citizen = await Citizen.findById(req.params.id).select('-password');
     if (!citizen) {
-      return res.status(404).json({ message: "Ciudadano no encontrado" });
+      return res.status(404).json({ mensaje: "Ciudadano no encontrado" });
     }
     res.status(200).json(citizen);
   } catch (error) {
-    console.error("Error al obtener ciudadano:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    res.status(500).json({ mensaje: "Error al obtener ciudadano", error: error.message });
   }
 };
 
-// Crear un nuevo ciudadano
 export const createCitizen = async (req, res) => {
   try {
-    const { name, username, password } = req.body;
-    const newCitizen = new Citizen({ name, username, password });
+    const {
+      name,
+      username,
+      password,
+      email,
+      personalInfo,
+      address
+    } = req.body;
+
+    const newCitizen = new Citizen({
+      name,
+      username,
+      password, // Note: Should implement password hashing
+      email,
+      personalInfo,
+      address,
+      accountStatus: 'Activo'
+    });
+
     await newCitizen.save();
-    res.status(201).json({ message: "Ciudadano creado", citizen: newCitizen });
+    res.status(201).json({
+      mensaje: "Ciudadano creado exitosamente",
+      citizen: {
+        ...newCitizen.toObject(),
+        password: undefined
+      }
+    });
   } catch (error) {
-    console.error("Error al crear ciudadano:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    res.status(500).json({ mensaje: "Error al crear ciudadano", error: error.message });
   }
 };
 
-// Actualizar un ciudadano
 export const updateCitizen = async (req, res) => {
   try {
-    const updatedCitizen = await Citizen.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { password, ...updateData } = req.body;
+    const updatedCitizen = await Citizen.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    ).select('-password');
+
     if (!updatedCitizen) {
-      return res.status(404).json({ message: "Ciudadano no encontrado" });
+      return res.status(404).json({ mensaje: "Ciudadano no encontrado" });
     }
-    res.status(200).json({ message: "Ciudadano actualizado", citizen: updatedCitizen });
+    res.status(200).json({
+      mensaje: "Ciudadano actualizado exitosamente",
+      citizen: updatedCitizen
+    });
   } catch (error) {
-    console.error("Error al actualizar ciudadano:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    res.status(500).json({ mensaje: "Error al actualizar ciudadano", error: error.message });
   }
 };
 
-// Eliminar un ciudadano
 export const deleteCitizen = async (req, res) => {
   try {
     const deletedCitizen = await Citizen.findByIdAndDelete(req.params.id);
     if (!deletedCitizen) {
-      return res.status(404).json({ message: "Ciudadano no encontrado" });
+      return res.status(404).json({ mensaje: "Ciudadano no encontrado" });
     }
-    res.status(200).json({ message: "Ciudadano eliminado" });
+    res.status(200).json({ mensaje: "Ciudadano eliminado exitosamente" });
   } catch (error) {
-    console.error("Error al eliminar ciudadano:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    res.status(500).json({ mensaje: "Error al eliminar ciudadano", error: error.message });
+  }
+};
+
+export const addCase = async (req, res) => {
+  try {
+    const citizen = await Citizen.findById(req.params.id);
+    if (!citizen) {
+      return res.status(404).json({ mensaje: "Ciudadano no encontrado" });
+    }
+
+    citizen.cases.push(req.body);
+    await citizen.save();
+
+    res.status(200).json({
+      mensaje: "Caso agregado exitosamente",
+      case: citizen.cases[citizen.cases.length - 1]
+    });
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al agregar caso", error: error.message });
   }
 };
