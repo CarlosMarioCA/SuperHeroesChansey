@@ -14,6 +14,7 @@ import HeroView from "./HeroView";
 import Login from "./Login";
 import RegisterView from "./RegisterView";
 import CaseCreateView from "./CaseCreateView";
+import AdminView from "./AdminView";
 
 const RoleSelection: React.FC = () => {
   const navigate = useNavigate();
@@ -34,12 +35,6 @@ const RoleSelection: React.FC = () => {
   );
 };
 
-const AdminView: React.FC = () => (
-  <Container className="custom-container">
-    <h2>Vista de Administrador</h2>
-    <p>Aquí puedes gestionar usuarios y misiones.</p>
-  </Container>
-);
 
 const App: React.FC = () => {
   return (
