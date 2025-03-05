@@ -4,47 +4,55 @@ import "./App.css";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    role: "citizen",
-  });
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("citizen");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     try {
       const endpoint =
-        formData.role === "hero"
-          ? "/api/superheroes/login"
-          : "/api/citizens/login";
+        role === "hero" ? "/api/superheroes/login" : "/api/citizens/login";
       const response = await fetch(`http://localhost:5050${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        const user = formData.role === "hero" ? data.superhero : data.citizen;
+        const user = role === "hero" ? data.superhero : data.citizen;
         localStorage.setItem("userId", user.id);
-        localStorage.setItem("userRole", formData.role);
+        localStorage.setItem("userRole", role);
         localStorage.setItem("username", user.username);
-        navigate(formData.role === "hero" ? "/hero" : "/citizen");
+        navigate(role === "hero" ? "/hero" : "/citizen");
       } else {
         setError(data.mensaje || "Credenciales inválidas");
       }
     } catch (error) {
+      console.error("Login error:", error);
       setError("Error en el servidor");
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleLogin();
+  };
+
   return (
     <div className="login-container">
-      <div className="login-header">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "1200px",
+          marginBottom: "30px",
+        }}
+      >
         <button className="back-button" onClick={() => navigate("/")}>
           Volver
         </button>
@@ -57,54 +65,48 @@ const Login: React.FC = () => {
         <h1>Iniciar Sesión</h1>
         {error && <p className="error-message">{error}</p>}
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleSubmit}>
           <input
             type="text"
             placeholder="Usuario"
-            value={formData.username}
-            onChange={(e) =>
-              setFormData({ ...formData, username: e.target.value })
-            }
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="login-input"
             required
           />
           <input
             type="password"
             placeholder="Contraseña"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="login-input"
             required
           />
 
           <div className="role-selection">
-            <div className="role-option">
-              <input
-                type="radio"
-                id="citizenCheck"
-                name="role"
-                value="citizen"
-                checked={formData.role === "citizen"}
-                onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
-                }
-              />
-              <label htmlFor="citizenCheck">Soy un ciudadano</label>
-            </div>
-            <div className="role-option">
-              <input
-                type="radio"
-                id="heroCheck"
-                name="role"
-                value="hero"
-                checked={formData.role === "hero"}
-                onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
-                }
-              />
-              <label htmlFor="heroCheck">Soy un superhéroe</label>
+            <div>
+              <div className="role-option">
+                <input
+                  type="radio"
+                  id="citizenCheck"
+                  name="role"
+                  value="citizen"
+                  checked={role === "citizen"}
+                  onChange={() => setRole("citizen")}
+                />
+                <label htmlFor="citizenCheck">Soy un ciudadano</label>
+              </div>
+              <div className="role-option">
+                <input
+                  type="radio"
+                  id="heroCheck"
+                  name="role"
+                  value="hero"
+                  checked={role === "hero"}
+                  onChange={() => setRole("hero")}
+                />
+                <label htmlFor="heroCheck">Soy un superhéroe</label>
+              </div>
             </div>
           </div>
 

@@ -545,3 +545,55 @@ select {
   color: #333;
   justify-content: left;
 }
+
+landing-fullscreen {
+  min-height: 100vh; /* Ocupa toda la altura de la pantalla */
+  width: 100vw; /* Ocupa toda la anchura de la pantalla */
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centra verticalmente */
+  align-items: center; /* Centra horizontalmente */
+  padding: 20px;
+  text-align: center;
+}
+
+.landing-container {
+  background: white; /* Fondo blanco */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px; /* Espacio entre el contenedor y la imagen */
+  max-width: 800px; /* Ancho máximo para el contenedor */
+  width: 90%; /* Ajusta el ancho para pantallas pequeñas */
+}
+
+.landing-header {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.custom-paragraph {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 18px;
+  padding: 10px;
+  margin: 10px;
+  color: #d1d1d1;
+  color: #555;
+}
+
+.image-container {
+  width: 100%; /* Asegura que el contenedor de la imagen ocupe el ancho completo */
+  max-width: 800px; /* Limita el ancho máximo del contenedor de la imagen */
+  display: flex;
+  justify-content: center; /* Centra la imagen horizontalmente */
+}
+
+.landing-image {
+  width: 800px; /* La imagen no será más ancha que su contenedor */
+  height: 400px; /* Mantiene la proporción de la imagen */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

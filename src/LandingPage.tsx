@@ -1,13 +1,8 @@
 import React from "react";
-import { Container, Header, Button } from "fomantic-ui-react";
+import { Button } from "fomantic-ui-react";
 import "fomantic-ui-css/semantic.min.css";
 import "./App.css";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -47,9 +42,17 @@ const LandingPage: React.FC = () => {
       </div>
       <div className="image-container">
         <img
-          src="public/images/login-image.jpeg"
+          src="/images/login-image.jpeg"
           alt="Superheroes"
           className="landing-image"
+          style={{
+            maxWidth: "800px",
+            width: "100%",
+            height: "400px",
+            objectFit: "cover",
+            borderRadius: "10px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+          }}
         />
       </div>
     </div>
