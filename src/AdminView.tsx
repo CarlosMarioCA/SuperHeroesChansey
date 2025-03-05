@@ -11,16 +11,19 @@ const AdminView: React.FC = () => {
   };
 
   return (
-    <div className="admin-container">
-      <h1>Panel de Administración</h1>
-      <p>Bienvenido al panel de administración. Aquí puedes gestionar los usuarios y otras configuraciones.</p>
+
+    <div className="admin-fullscreen">
+     <div className="admin-container">
+      <h1>Admin Panel</h1>
+      <p>Pagina en construcción, muy pronto estara disponible.</p>
 
       {/* Botón para volver al login */}
       <button className="logout-button" onClick={handleLogout}>
-        Cerrar Sesión
+        Volver
       </button>
 
       {/* Aquí puedes agregar más contenido del panel de administración */}
+    </div>
     </div>
   );
 };
