@@ -13,7 +13,7 @@ const CaseCreateView: React.FC = () => {
       address: "",
       city: "",
     },
-    priority: "medium",
+    priority: "Media",
   });
   const [error, setError] = useState("");
 
@@ -33,28 +33,37 @@ const CaseCreateView: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const citizenId = localStorage.getItem("userId");
+    if (!citizenId) {
+      setError("No se encontró ID del ciudadano");
+      return;
+    }
+
+    const caseData = {
+      ...formData,
+      citizen: citizenId,
+      status: "open",
+      createdAt: new Date().toISOString(),
+    };
+
     try {
-      const response = await fetch(`http://localhost:5050/api/cases`, {
+      const response = await fetch("http://localhost:5050/api/cases", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({
-          ...formData,
-          citizen: localStorage.getItem("userId"),
-          status: "open",
-        }),
+        body: JSON.stringify(caseData),
       });
-
-      const data = await response.json();
 
       if (response.ok) {
         navigate("/citizen");
       } else {
-        setError(data.mensaje || "Error al crear el caso");
+        const errorData = await response.json();
+        setError(errorData.message || "Error al crear el caso");
       }
     } catch (error) {
-      setError("Error en el servidor");
+      setError("Error de conexión con el servidor");
     }
   };
 
@@ -166,10 +175,10 @@ const CaseCreateView: React.FC = () => {
                 className="register-input"
                 required
               >
-                <option value="low">Baja</option>
-                <option value="medium">Media</option>
-                <option value="high">Alta</option>
-                <option value="urgent">Urgente</option>
+                <option value="Baja">Baja</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
+                <option value="Urgente">Urgente</option>
               </select>
             </div>
 

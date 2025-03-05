@@ -3,8 +3,16 @@ import Case from "../models/case.js";
 export const getAllCases = async (req, res) => {
   try {
     const cases = await Case.find()
-      .populate('citizen', 'name username')
-      .populate('hero', 'name username');
+      .populate({
+        path: 'citizen',
+        model: 'Citizen',
+        select: 'name username'
+      })
+      .populate({
+        path: 'hero',
+        model: 'Superhero',
+        select: 'name username'
+      });
     res.status(200).json(cases);
   } catch (error) {
     res.status(500).json({ mensaje: "Error al obtener casos", error: error.message });
@@ -14,8 +22,16 @@ export const getAllCases = async (req, res) => {
 export const getCaseById = async (req, res) => {
   try {
     const case_ = await Case.findById(req.params.id)
-      .populate('citizen', 'name username')
-      .populate('hero', 'name username');
+      .populate({
+        path: 'citizen',
+        model: 'Citizen',
+        select: 'name username'
+      })
+      .populate({
+        path: 'hero',
+        model: 'Superhero',
+        select: 'name username'
+      });
     if (!case_) {
       return res.status(404).json({ mensaje: "Caso no encontrado" });
     }
@@ -47,9 +63,22 @@ export const createCase = async (req, res) => {
     });
 
     await newCase.save();
+    
+    const populatedCase = await Case.findById(newCase._id)
+      .populate({
+        path: 'citizen',
+        model: 'Citizen',
+        select: 'name username'
+      })
+      .populate({
+        path: 'hero',
+        model: 'Superhero',
+        select: 'name username'
+      });
+
     res.status(201).json({
       mensaje: "Caso creado exitosamente",
-      case: newCase
+      case: populatedCase
     });
   } catch (error) {
     res.status(500).json({ mensaje: "Error al crear caso", error: error.message });
@@ -62,7 +91,17 @@ export const updateCase = async (req, res) => {
       req.params.id,
       req.body,
       { new: true }
-    );
+    )
+    .populate({
+      path: 'citizen',
+      model: 'Citizen',
+      select: 'name username'
+    })
+    .populate({
+      path: 'hero',
+      model: 'Superhero',
+      select: 'name username'
+    });
 
     if (!updatedCase) {
       return res.status(404).json({ mensaje: "Caso no encontrado" });
@@ -90,7 +129,17 @@ export const deleteCase = async (req, res) => {
 
 export const addMessage = async (req, res) => {
   try {
-    const case_ = await Case.findById(req.params.id);
+    const case_ = await Case.findById(req.params.id)
+      .populate({
+        path: 'citizen',
+        model: 'Citizen',
+        select: 'name username'
+      })
+      .populate({
+        path: 'hero',
+        model: 'Superhero',
+        select: 'name username'
+      });
     if (!case_) {
       return res.status(404).json({ mensaje: "Caso no encontrado" });
     }
@@ -110,7 +159,17 @@ export const addMessage = async (req, res) => {
 
 export const updateResolution = async (req, res) => {
   try {
-    const case_ = await Case.findById(req.params.id);
+    const case_ = await Case.findById(req.params.id)
+      .populate({
+        path: 'citizen',
+        model: 'Citizen',
+        select: 'name username'
+      })
+      .populate({
+        path: 'hero',
+        model: 'Superhero',
+        select: 'name username'
+      });
     if (!case_) {
       return res.status(404).json({ mensaje: "Caso no encontrado" });
     }

@@ -14,33 +14,45 @@ const CitizenView: React.FC = () => {
   const [userData, setUserData] = useState({ name: "", username: "" });
   const [heroes, setHeroes] = useState([]);
   const [heroCases, setHeroCases] = useState([]);
+  const [activeCases, setActiveCases] = useState([]);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        const response = await fetch(
+        console.log("Current userId:", userId);
+
+        // Fetch user data
+        const userResponse = await fetch(
           `http://localhost:5050/api/citizens/${userId}`
         );
-        const data = await response.json();
-        setUserData(data);
+        const userData = await userResponse.json();
+        setUserData(userData);
+
+        // Fetch heroes
+        const heroesResponse = await fetch(
+          "http://localhost:5050/api/superheroes"
+        );
+        const heroesData = await heroesResponse.json();
+        setHeroes(heroesData);
+
+        // Fetch cases with populated data
+        const casesResponse = await fetch(`http://localhost:5050/api/cases`);
+        const casesData = await casesResponse.json();
+        console.log("All cases:", casesData);
+
+        // Filter cases using the correct citizen ID comparison
+        const userCases = casesData.filter(
+          (c: any) => c.citizen._id === userId || c.citizen === userId
+        );
+        console.log("Filtered user cases:", userCases);
+        setActiveCases(userCases);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    const fetchHeroes = async () => {
-      try {
-        const response = await fetch("http://localhost:5050/api/superheroes");
-        const data = await response.json();
-        setHeroes(data);
-      } catch (error) {
-        console.error("Error fetching heroes:", error);
-      }
-    };
-
-    fetchUserData();
-    fetchHeroes();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -85,6 +97,21 @@ const CitizenView: React.FC = () => {
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
+  };
+
+  const getSelectedCaseDetails = () => {
+    const selectedCaseData = activeCases.find(
+      (c: any) => c._id === selectedCase
+    );
+    if (!selectedCaseData) return null;
+
+    return {
+      title: selectedCaseData.title,
+      description: selectedCaseData.description,
+      priority: selectedCaseData.priority,
+      heroName: selectedCaseData.hero?.name || "No asignado",
+      status: selectedCaseData.status,
+    };
   };
 
   return (
@@ -192,10 +219,10 @@ const CitizenView: React.FC = () => {
             <select
               onChange={(e) => setSelectedCase(e.target.value)}
               value={selectedCase || ""}
-              disabled={!selectedHero}
+              style={{ width: "100%", marginBottom: "10px" }}
             >
-              <option value="">Selecciona un caso</option>
-              {heroCases.map((c: any) => (
+              <option value="">Selecciona un caso activo</option>
+              {activeCases.map((c: any) => (
                 <option key={c._id} value={c._id}>
                   {c.title}
                 </option>
@@ -203,16 +230,27 @@ const CitizenView: React.FC = () => {
             </select>
 
             {selectedCase && (
-              <div className="case-box">
-                <h4>
-                  {heroCases.find((c: any) => c._id === selectedCase)?.title}
-                </h4>
-                <p>
-                  {
-                    heroCases.find((c: any) => c._id === selectedCase)
-                      ?.description
-                  }
-                </p>
+              <div className="case-box" style={{ marginBottom: "10px" }}>
+                {(() => {
+                  const caseDetails = getSelectedCaseDetails();
+                  return caseDetails ? (
+                    <>
+                      <h4>{caseDetails.title}</h4>
+                      <p>
+                        <strong>Descripción:</strong> {caseDetails.description}
+                      </p>
+                      <p>
+                        <strong>Prioridad:</strong> {caseDetails.priority}
+                      </p>
+                      <p>
+                        <strong>Héroe Asignado:</strong> {caseDetails.heroName}
+                      </p>
+                      <p>
+                        <strong>Estado:</strong> {caseDetails.status}
+                      </p>
+                    </>
+                  ) : null;
+                })()}
               </div>
             )}
             <div style={{ display: "flex", gap: "10px" }}>

@@ -15,14 +15,12 @@ const caseSchema = new mongoose.Schema({
   description: { type: String, required: true },
   citizen: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Citizen',
-    required: true
-  },
-  hero: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Superhero',
-    required: true
-  },
+    ref: 'Citizen'
+},
+hero: {
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Superhero'
+},
   status: {
     type: String,
     enum: ['Abierto', 'En progreso', 'Resuelto', 'Cerrado'],
