@@ -1,0 +1,14 @@
+Para poder utilizar este programa es necesario tener instalado java 17 y tener seleccionado en el entorno de ejecución, ademas es necesario
+cumplir los uno de los siguientes requerimientos de bases de datos:
+
+Es necesario crear una base de datos de postgres, existen 2 opciones, el primero es usar docker y utilizar la siguiente instruccion con 
+la imagen postgres ya instalada.
+
+docker run --name mi_postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=Hola1 -e POSTGRES_DB=AvengersColombia -p 5432:5432 -d postgres
+
+Si se tien postgres puede utilizar la siguiente configuración para utilizarla directamente
+El nombre de usuario sea postgres, contraseña sea Hola1 y nombre de base de datos sea con AvengersColombia con puertos 5432:5432
+
+Si quiere usar otro usuario, contraseña, nombre de base de datos, puertos u otra base de datos tendra que configurar application.properties
+para que funcione
+ 
